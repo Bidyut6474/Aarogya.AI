@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, render_template_string, make_response, Response, render_template
-import PyPDF2
+import PyPDF2  # Changed from fitz to PyPDF2
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
@@ -81,12 +81,22 @@ Rules:
 Text:
 \"\"\"{chunk}\"\"\"
 """
- 
+
 def extract_text_from_pdf(file_storage) -> str:
-    file_storage.seek(0)
-    pdf = PyPDF2.open(stream=file_storage.read(), filetype="pdf")
-    text = "\n".join(page.get_text() for page in pdf)
-    return text
+    """Extract text from PDF using PyPDF2"""
+    try:
+        file_storage.seek(0)
+        pdf_reader = PyPDF2.PdfReader(file_storage)
+        
+        text = ""
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text += page.extract_text() + "\n"
+        
+        return text.strip()
+    
+    except Exception as e:
+        raise Exception(f"Error reading PDF: {str(e)}")
  
 def extract_medical_fields_with_groq(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
