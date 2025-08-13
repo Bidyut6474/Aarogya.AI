@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #334155;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #64748b;
+        }
+
+        .nav-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #f1f5f9;
+        }
+
+        .upload-area.has-file {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
+        .upload-text {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn.success {
+            background: #10b981;
+        }
+
+        .btn.success:hover {
+            background: #059669;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+        }
+
+        .btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .btn.secondary {
+            background: #64748b;
+        }
+
+        .btn.secondary:hover {
+            background: #475569;
+        }
+
+        .btn.warning {
+            background: #f59e0b;
+        }
+
+        .btn.warning:hover {
+            background: #d97706;
+        }
+
+        .status {
+            margin: 16px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status.info {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
+        }
+
+        .extracted-data {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .extracted-data.show {
+            display: block;
+        }
+
+        .extracted-data pre {
+            margin: 0;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #374151;
+        }
+
+        /* Download Section Styles */
+        .download-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .download-section h3 {
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .download-category {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .download-category h4 {
+            color: #374151;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .download-btn {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        /* Records Section Styles */
+        .records-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .records-header h3 {
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .records-count {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .records-list {
+            background: white;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .records-list.show {
+            display: block;
+        }
+
+        .record-item {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .record-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .record-filename {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .record-timestamp {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .record-details {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .record-expand-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .record-expand-btn:hover {
+            background-color: #eff6ff;
+        }
+
+        .record-data {
+            margin-top: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 16px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .record-data.show {
+            display: block;
+        }
+
+        .record-data pre {
+            margin: 0;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #374151;
+            line-height: 1.4;
+        }
+
+        .expand-icon {
+            margin-left: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafbfc;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            max-width: 85%;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .chat-message.user {
+            background: #3b82f6;
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-message.assistant {
+            background: white;
+            border: 1px solid #e2e8f0;
+            margin-right: auto;
+        }
+
+        .medical-info {
+            font-family: inherit;
+        }
+
+        .medical-section {
+            margin-bottom: 16px;
+        }
+
+        .medical-section h4 {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .medical-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .medical-section li {
+            margin-bottom: 4px;
+        }
+
+        .medical-value {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .question-area {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .question-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .question-input:disabled {
+            background: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-document-message {
+            text-align: center;
+            color: #94a3b8;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+            
+            .section {
+                padding: 24px;
+            }
+            
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .nav-tab {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Healthcare AI Assistant</h1>
+            <p>Upload medical documents and get instant insights</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('admin')">Admin Panel</button>
+            <button class="nav-tab" onclick="showSection('user')">Chat Assistant</button>
+        </div>
+
+        <!-- Admin Section -->
+        <div id="adminSection" class="section active">
+            <h2 class="section-title">Document Management</h2>
+            
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon" id="uploadIcon">📄</div>
+                <div class="upload-text" id="uploadText">Click to upload or drag and drop your medical PDF</div>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept=".pdf">
+            
+            <div id="fileInfo" class="file-info">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn" id="uploadBtn" onclick="uploadFile()">
+                    <span id="uploadBtnText">Upload Document</span>
+                </button>
+                <button class="btn success" id="extractBtn" onclick="toggleExtractedData()" style="display: none;">
+                    <span id="extractBtnText">Show Extracted Data</span>
+                </button>
+                <button class="btn warning" id="recordsBtn" onclick="toggleRecordsSection()">
+                    <span id="recordsBtnText">Show All Records</span>
+                </button>
+                <button class="btn danger" id="clearBtn" onclick="clearDocuments()" style="display: none;">
+                    Clear All Data
+                </button>
+            </div>
+            
+            <div id="uploadStatus"></div>
+            
+            <!-- Download Section -->
+            <div class="download-section">
+                <h3>📥 Download Options</h3>
+                <div class="download-grid">
+                    <div class="download-category">
+                        <h4>Latest Extraction</h4>
+                        <div class="download-buttons">
+                            <a href="/download_json" class="btn download-btn" id="downloadJsonBtn">
+                                📄 JSON
+                            </a>
+                            <a href="/download_csv" class="btn download-btn" id="downloadCsvBtn">
+                                📊 CSV
+                            </a>
+                            <a href="/download_excel" class="btn download-btn" id="downloadExcelBtn">
+                                📋 Excel
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="download-category">
+                        <h4>All Records</h4>
+                        <div class="download-buttons">
+                            <a href="/download_all_json" class="btn secondary download-btn" id="downloadAllJsonBtn">
+                                📄 All JSON
+                            </a>
+                            <a href="/download_all_csv" class="btn secondary download-btn" id="downloadAllCsvBtn">
+                                📊 All CSV
+                            </a>
+                            <a href="/download_all_excel" class="btn secondary download-btn" id="downloadAllExcelBtn">
+                                📋 All Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Records Section -->
+            <div class="records-section">
+                <div class="records-header">
+                    <h3>📋 Extraction Records</h3>
+                    <div class="records-count" id="recordsCount">0 records</div>
+                </div>
+                <div id="recordsList" class="records-list">
+                    <!-- Records will be populated here -->
+                </div>
+            </div>
+            
+            <div id="extractedData" class="extracted-data">
+                <pre id="extractedDataDisplay"></pre>
+            </div>
+        </div>
+
+        <!-- User Chat Section -->
+        <div id="userSection" class="section">
+            <h2 class="section-title">AI Chat Assistant</h2>
+            
+            <div id="chatContainer" class="chat-container">
+                <div class="chat-message assistant">
+                    Hello! I am your Medical Assistant.
+                </div>
+            </div> 
+            
+            <div class="question-area">
+                <textarea 
+                    id="questionInput" 
+                    class="question-input" 
+                    placeholder="Ask about the document..."
+                    disabled
+                ></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn" id="askBtn" onclick="askQuestion()" disabled>
+                    <span id="askBtnText">Ask Question</span>
+                </button>
+            </div>
+            
+            <div id="questionStatus"></div>
+            
+            <div id="noDocumentMessage" class="no-document-message">
+                📋 Upload a document in the Admin Panel to start chatting
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';  // Use relative URLs since we're serving from Flask
+        let isUploading = false;
+        let isAsking = false;
+        let extractedData = null;
+        let isExtractedDataVisible = false;
+        let hasDocument = false;
+        let isRecordsVisible = false;
+        let recordsData = [];
+
+        // Navigation
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('userSection').classList.remove('active');
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(section + 'Section').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Load records when admin section is shown
+            if (section === 'admin') {
+                loadRecords();
+            }
+        }
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        if (uploadArea && fileInput) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type === 'application/pdf') {
+                    fileInput.files = files;
+                    showFileInfo(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    showFileInfo(e.target.files[0]);
+                }
+            });
+        }
+
+        function showFileInfo(file) {
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadIcon = document.getElementById('uploadIcon');
+            const uploadText = document.getElementById('uploadText');
+            
+            if (!fileName || !fileSize || !fileInfo || !uploadIcon || !uploadText) {
+                console.error('Required DOM elements not found');
+                return;
+            }
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            fileInfo.classList.add('show');
+            
+            uploadArea.classList.add('has-file');
+            uploadIcon.textContent = '✓';
+            uploadText.textContent = 'File selected - ready to upload';
+        }
+
+        function enableChatInterface() {
+            hasDocument = true;
+            document.getElementById('questionInput').disabled = false;
+            document.getElementById('askBtn').disabled = false;
+            document.getElementById('noDocumentMessage').style.display = 'none';
+            document.getElementById('clearBtn').style.display = 'block';
+        }
+
+        function disableChatInterface() {
+            hasDocument = false;
+            document.getElementById('questionInput').disabled = true;
+            document.getElementById('askBtn').disabled = true;
+            document.getElementById('noDocumentMessage').style.display = 'block';
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('extractBtn').style.display = 'none';
+        }
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.error(`Status element with id '${elementId}' not found`);
+                return;
+            }
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearStatus(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.error(`Status element with id '${elementId}' not found`);
+                return;
+            }
+            element.innerHTML = '';
+        }
+
+        async function loadRecords() {
+            try {
+                const response = await fetch(`${API_BASE}/extract_records`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    recordsData = data.records || [];
+                    updateRecordsDisplay();
+                }
+            } catch (error) {
+                console.error('Error loading records:', error);
+            }
+        }
+
+        function updateRecordsDisplay() {
+            const recordsCount = document.getElementById('recordsCount');
+            recordsCount.textContent = `${recordsData.length} records`;
+
+            const recordsList = document.getElementById('recordsList');
+            
+            if (recordsData.length === 0) {
+                recordsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b;">No extraction records yet. Upload a document to get started.</div>';
+            } else {
+                recordsList.innerHTML = recordsData.map((record, index) => `
+                    <div class="record-item">
+                        <div class="record-header">
+                            <div class="record-filename">${record.filename || 'Unknown file'}</div>
+                            <div class="record-timestamp">${record.created_at || record.timestamp}</div>
+                        </div>
+                        <div class="record-details">
+                            Patient: ${record.extracted_data?.patient_name || 'N/A'} | 
+                            ID: ${record.extracted_data?.patient_id || 'N/A'} |
+                            Records: ${Object.keys(record.extracted_data || {}).length} fields
+                        </div>
+                        <button class="record-expand-btn" onclick="toggleRecordData(${index})">
+                            <span id="expandText_${index}">Show Details</span>
+                            <span class="expand-icon" id="expandIcon_${index}">▼</span>
+                        </button>
+                        <div class="record-data" id="recordData_${index}">
+                            <pre>${JSON.stringify(record.extracted_data || {}, null, 2)}</pre>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function toggleRecordData(index) {
+            const recordData = document.getElementById(`recordData_${index}`);
+            const expandText = document.getElementById(`expandText_${index}`);
+            const expandIcon = document.getElementById(`expandIcon_${index}`);
+            
+            if (recordData.classList.contains('show')) {
+                recordData.classList.remove('show');
+                expandText.textContent = 'Show Details';
+                expandIcon.classList.remove('rotated');
+                expandIcon.textContent = '▼';
+            } else {
+                recordData.classList.add('show');
+                expandText.textContent = 'Hide Details';
+                expandIcon.classList.add('rotated');
+                expandIcon.textContent = '▲';
+            }
+        }
+
+        function toggleRecordsSection() {
+            const recordsList = document.getElementById('recordsList');
+            const recordsBtnText = document.getElementById('recordsBtnText');
+            
+            if (isRecordsVisible) {
+                recordsList.classList.remove('show');
+                recordsBtnText.textContent = 'Show All Records';
+                isRecordsVisible = false;
+            } else {
+                recordsList.classList.add('show');
+                recordsBtnText.textContent = 'Hide All Records';
+                isRecordsVisible = true;
+                loadRecords(); // Refresh records when showing
+            }
+        }
+
+        async function uploadFile() {
+            if (isUploading) return;
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                showStatus('uploadStatus', 'Please select a PDF file first', 'error');
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                showStatus('uploadStatus', 'Please select a PDF file only', 'error');
+                return;
+            }
+
+            isUploading = true;
+            document.getElementById('uploadBtnText').innerHTML = '<span class="loader"></span> Uploading...';
+            showStatus('uploadStatus', 'Processing document...', 'info');
+            
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    extractedData = data.extracted_data;
+                    showStatus('uploadStatus', `Document uploaded successfully! Ready for questions.`, 'success');
+                    document.getElementById('extractedDataDisplay').textContent = JSON.stringify(data.extracted_data, null, 2);
+                    document.getElementById('extractBtn').style.display = 'block';
+                    enableChatInterface();
+                    loadRecords(); // Refresh records after successful upload
+                } else {
+                    showStatus('uploadStatus', `Upload failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showStatus('uploadStatus', `Upload failed: ${error.message}`, 'error');
+            } finally {
+                isUploading = false;
+                document.getElementById('uploadBtnText').textContent = 'Upload Document';
+            }
+        }
+
+        function toggleExtractedData() {
+            const extractedDataDiv = document.getElementById('extractedData');
+            const extractBtnText = document.getElementById('extractBtnText');
+            
+            if (isExtractedDataVisible) {
+                extractedDataDiv.classList.remove('show');
+                extractBtnText.textContent = 'Show Extracted Data';
+                isExtractedDataVisible = false;
+            } else {
+                extractedDataDiv.classList.add('show');
+                extractBtnText.textContent = 'Hide Extracted Data';
+                isExtractedDataVisible = true;
+            }
+        }
+
+        async function clearDocuments() {
+            if (confirm('Are you sure you want to clear all uploaded documents and records? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`${API_BASE}/clear_vectors`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showStatus('uploadStatus', 'All documents and records cleared successfully!', 'success');
+                        document.getElementById('fileInfo').classList.remove('show');
+                        document.getElementById('extractedData').classList.remove('show');
+                        document.getElementById('recordsList').classList.remove('show');
+                        fileInput.value = '';
+                        extractedData = null;
+                        isExtractedDataVisible = false;
+                        isRecordsVisible = false;
+                        recordsData = [];
+                        
+                        // Reset upload area
+                        uploadArea.classList.remove('has-file');
+                        document.getElementById('uploadIcon').textContent = '📄';
+                        document.getElementById('uploadText').textContent = 'Click to upload or drag and drop your medical PDF';
+                        
+                        // Reset records button
+                        document.getElementById('recordsBtnText').textContent = 'Show All Records';
+                        
+                        // Clear chat and add reset message
+                        document.getElementById('chatContainer').innerHTML = `
+                            <div class="chat-message assistant">
+                                All documents have been cleared. Please upload a new document to continue chatting!
+                            </div>
+                        `;
+                        
+                        updateRecordsDisplay();
+                        disableChatInterface();
+                    } else {
+                        showStatus('uploadStatus', 'Failed to clear documents', 'error');
+                    }
+                } catch (error) {
+                    showStatus('uploadStatus', `Failed to clear documents: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function askQuestion() {
+            if (isAsking || !hasDocument) return;
+
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) {
+                showStatus('questionStatus', 'Please enter a question', 'error');
+                return;
+            }
+
+            isAsking = true;
+            document.getElementById('askBtnText').innerHTML = '<span class="loader"></span> Thinking...';
+            
+            addChatMessage('user', question);
+            document.getElementById('questionInput').value = '';
+
+            const formData = new FormData();
+            formData.append('question', question);
+
+            try {
+                const response = await fetch(`${API_BASE}/user`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addChatMessage('assistant', data.answer);
+                    clearStatus('questionStatus');
+                } else {
+                    addChatMessage('assistant', `Sorry, I couldn't answer that: ${data.error || 'Unknown error'}`);
+                    showStatus('questionStatus', `Failed to get answer: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Question error:', error);
+                addChatMessage('assistant', 'Sorry, I had trouble connecting to the server. Please make sure it\'s running.');
+                showStatus('questionStatus', `Failed to get answer: ${error.message}`, 'error');
+            } finally {
+                isAsking = false;
+                document.getElementById('askBtnText').textContent = 'Ask Question';
+            }
+        }
+
+        function formatMedicalResponse(text) {
+            // Remove quoted text in double quotes
+            let formatted = text.replace(/"[^"]*"/g, '');
+            
+            // Remove common AI context phrases
+            formatted = formatted.replace(/Based on the provided context,?\s*/gi, '');
+            formatted = formatted.replace(/According to the (?:provided )?(?:context|document),?\s*/gi, '');
+            formatted = formatted.replace(/From the (?:provided )?(?:context|document),?\s*/gi, '');
+            formatted = formatted.replace(/In the (?:provided )?(?:context|document),?\s*/gi, '');
+            
+            // Check if this looks like medical information
+            if (formatted.includes('**') || formatted.includes('*') || formatted.includes('BP') || formatted.includes('HR') || formatted.includes('BMI') || formatted.includes('medical history')) {
+                
+                // Format section headers (text between **)
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<h4>$1</h4>');
+                
+                // Format bulleted lists
+                formatted = formatted.replace(/\* ([^*\n]+)/g, '<li>$1</li>');
+                
+                // Wrap consecutive list items in ul tags
+                formatted = formatted.replace(/(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs, '<ul>$1</ul>');
+                
+                // Format vital signs and measurements
+                formatted = formatted.replace(/(BP \d+\/\d+|HR \d+|BMI (?:of )?[\d.]+|PCOS)/g, '<span class="medical-value">$1</span>');
+                
+                // Format medical conditions and symptoms
+                formatted = formatted.replace(/(irregular menstrual cycles|hirsutism|facial hair|infertility|acne)/gi, '<span class="medical-value">$1</span>');
+                
+                // Clean up multiple spaces and line breaks
+                formatted = formatted.replace(/\s+/g, ' ').trim();
+                
+                // Remove any remaining empty quotes or extra punctuation
+                formatted = formatted.replace(/[""'']/g, '').replace(/\s+\./g, '.').replace(/\s+,/g, ',');
+                
+                // Capitalize first letter if needed
+                formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+                
+                return `<div class="medical-info">${formatted}</div>`;
+            }
+            
+            // For non-medical responses, just remove quotes and context phrases, then clean up
+            formatted = formatted.replace(/[""'']/g, '').replace(/\s+/g, ' ').trim();
+            formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+            return formatted;
+        }
+
+        function addChatMessage(sender, message) {
+            const chatContainer = document.getElementById('chatContainer');
+            if (!chatContainer) {
+                console.error('Chat container not found');
+                return;
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            if (sender === 'assistant') {
+                // Format medical responses for better readability
+                messageDiv.innerHTML = formatMedicalResponse(message);
+            } else {
+                messageDiv.textContent = message;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Allow Enter key to submit question
+        const questionInput = document.getElementById('questionInput');
+        if (questionInput) {
+            questionInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey && !this.disabled) {
+                    e.preventDefault();
+                    askQuestion();
+                }
+            });
+        }
+
+        // Initialize interface
+        document.addEventListener('DOMContentLoaded', function() {
+            disableChatInterface();
+            loadRecords(); // Load records on page load
+        });
+    </script>
+</body>
+</html>
