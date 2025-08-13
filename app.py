@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, render_template_string, make_response, Response, render_template
-import fitz
+import PyPDF2
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
@@ -84,7 +84,7 @@ Text:
  
 def extract_text_from_pdf(file_storage) -> str:
     file_storage.seek(0)
-    pdf = fitz.open(stream=file_storage.read(), filetype="pdf")
+    pdf = PyPDF2.open(stream=file_storage.read(), filetype="pdf")
     text = "\n".join(page.get_text() for page in pdf)
     return text
  
