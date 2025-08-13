@@ -11,9 +11,7 @@ import pandas as pd
 import io
 from datetime import datetime
 import uuid
-import sys
-sys.path.append(r"E:\Health-Care")
-from frontend import *
+
 
  
 # ----- CONFIGURATION -----
@@ -586,4 +584,4 @@ def user_qa():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=7007)
+    app.run(debug=True, host="0.0.0.0")
