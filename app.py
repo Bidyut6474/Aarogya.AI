@@ -11,6 +11,10 @@ import pandas as pd
 import io
 from datetime import datetime
 import uuid
+import sys
+sys.path.append(r"E:\Health-Care")
+from frontend import *
+
  
 # ----- CONFIGURATION -----
 GROQ_API_KEY = "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"
