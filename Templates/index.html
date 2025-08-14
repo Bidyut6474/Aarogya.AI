@@ -558,6 +558,53 @@
             padding: 40px 20px;
         }
 
+        /* Chat Controls Styles */
+        .chat-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chat-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0;
+        }
+
+        .clear-chat-btn {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clear-chat-btn:hover {
+            background: #d97706;
+        }
+
+        .clear-chat-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px 16px;
@@ -588,6 +635,17 @@
 
             .download-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .chat-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .chat-controls {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -693,6 +751,14 @@
         <div id="userSection" class="section">
             <h2 class="section-title">AI Chat Assistant</h2>
             
+            <!-- Chat Header with Clear Button -->
+            <div class="chat-header">
+                <h3 class="chat-title"></h3>
+                <button class="clear-chat-btn" id="clearChatBtn" onclick="clearAllChats()" disabled>
+                    🗑️ Clear All Chats
+                </button>
+            </div>
+            
             <div id="chatContainer" class="chat-container">
                 <div class="chat-message assistant">
                     Hello! I am your Medical Assistant.
@@ -708,7 +774,7 @@
                 ></textarea>
             </div>
             
-            <div style="text-align: center;">
+            <div class="chat-controls">
                 <button class="btn" id="askBtn" onclick="askQuestion()" disabled>
                     <span id="askBtnText">Ask Question</span>
                 </button>
@@ -809,6 +875,7 @@
             hasDocument = true;
             document.getElementById('questionInput').disabled = false;
             document.getElementById('askBtn').disabled = false;
+            document.getElementById('clearChatBtn').disabled = false;
             document.getElementById('noDocumentMessage').style.display = 'none';
             document.getElementById('clearBtn').style.display = 'block';
         }
@@ -817,6 +884,7 @@
             hasDocument = false;
             document.getElementById('questionInput').disabled = true;
             document.getElementById('askBtn').disabled = true;
+            document.getElementById('clearChatBtn').disabled = true;
             document.getElementById('noDocumentMessage').style.display = 'block';
             document.getElementById('clearBtn').style.display = 'none';
             document.getElementById('extractBtn').style.display = 'none';
@@ -1026,11 +1094,7 @@
                         document.getElementById('recordsBtnText').textContent = 'Show All Records';
                         
                         // Clear chat and add reset message
-                        document.getElementById('chatContainer').innerHTML = `
-                            <div class="chat-message assistant">
-                                All documents have been cleared. Please upload a new document to continue chatting!
-                            </div>
-                        `;
+                        resetChatToInitialState();
                         
                         updateRecordsDisplay();
                         disableChatInterface();
@@ -1040,6 +1104,35 @@
                 } catch (error) {
                     showStatus('uploadStatus', `Failed to clear documents: ${error.message}`, 'error');
                 }
+            }
+        }
+
+        function resetChatToInitialState() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = `
+                <div class="chat-message assistant">
+                    Hello! I am your Medical Assistant.
+                </div>
+            `;
+        }
+
+        function clearAllChats() {
+            if (confirm('Are you sure you want to clear all chat messages? The uploaded document will remain available for new questions.')) {
+                resetChatToInitialState();
+                
+                // Clear any question status
+                clearStatus('questionStatus');
+                
+                // Clear the input field
+                document.getElementById('questionInput').value = '';
+                
+                // Show a brief confirmation
+                showStatus('questionStatus', 'Chat history cleared successfully!', 'success');
+                
+                // Clear the status after 3 seconds
+                setTimeout(() => {
+                    clearStatus('questionStatus');
+                }, 3000);
             }
         }
 
